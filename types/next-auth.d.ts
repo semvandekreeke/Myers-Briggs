@@ -1,8 +1,8 @@
 import type { DefaultSession } from "next-auth";
 
 /**
- * Augment NextAuth's Session type to include the fields we expose in the
- * `session` callback (lib/auth.ts).
+ * Augment NextAuth's types to include the fields we carry on the session and
+ * the JWT (lib/auth.ts).
  */
 declare module "next-auth" {
   interface Session {
@@ -10,5 +10,17 @@ declare module "next-auth" {
       id: string;
       mbtiType?: string | null;
     } & DefaultSession["user"];
+  }
+
+  // Returned by the Credentials `authorize` callback.
+  interface User {
+    mbtiType?: string | null;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    mbtiType?: string | null;
   }
 }

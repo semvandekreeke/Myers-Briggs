@@ -22,6 +22,8 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  /// bcrypt hash for email+password sign-in. Null for OAuth-only users.
+  password      String?
   /// The user's current MBTI type (denormalized for quick reads).
   mbtiType      String?
 
