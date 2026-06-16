@@ -73,7 +73,7 @@ export default function TestPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-3xl space-y-8">
       <ProgressBar current={answeredCount} total={total} />
 
       <QuestionCard

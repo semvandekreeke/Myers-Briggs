@@ -1,0 +1,168 @@
+// Prisma schema for the MBTI development platform.
+// Production persistence layer (PostgreSQL). The app also runs fully on
+// localStorage without a database; this schema powers multi-user accounts,
+// groups, and synced progress when DATABASE_URL is configured.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth models (NextAuth + Prisma adapter)
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  /// The user's current MBTI type (denormalized for quick reads).
+  mbtiType      String?
+
+  accounts            Account[]
+  sessions            Session[]
+  assessments         Assessment[]
+  memberships         GroupMember[]
+  ownedGroups         Group[]               @relation("GroupOwner")
+  developmentProgress DevelopmentProgress[]
+  goals               Goal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Domain models
+// ---------------------------------------------------------------------------
+
+model Assessment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 4-letter type code, e.g. "INTJ".
+  type      String
+  /// Raw Likert answers { questionId: 1..5 }.
+  answers   Json
+  /// Scoring breakdown { dimensions, confidences }.
+  scores    Json
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Group {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User          @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  /// Shareable code used to invite/join.
+  inviteCode  String        @unique @default(cuid())
+  createdAt   DateTime      @default(now())
+
+  @@index([ownerId])
+}
+
+model GroupMember {
+  id          String   @id @default(cuid())
+  groupId     String
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  /// Null for members added by name only (not yet registered users).
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  displayName String
+  mbtiType    String
+  role        String   @default("member") // "owner" | "member"
+  joinedAt    DateTime @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+}
+
+/// Cached pairwise compatibility scores (computed by the engine, persisted to
+/// avoid recomputation at scale). typeA <= typeB by convention.
+model Compatibility {
+  id            String @id @default(cuid())
+  typeA         String
+  typeB         String
+  overall       Int
+  communication Int
+  work          Int
+  friendship    Int
+  relationship  Int
+
+  @@unique([typeA, typeB])
+  @@index([typeA])
+}
+
+model DevelopmentProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Topic id, e.g. "communication".
+  topic          String
+  /// Indices of completed checklist items.
+  completedItems Int[]
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, topic])
+  @@index([userId])
+}
+
+model Goal {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  topic     String?
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

@@ -3,4 +3,13 @@ node_modules
 out
 .DS_Store
 *.log
-.env*
+
+# Environment — keep .env.example tracked, ignore real secrets.
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Prisma
+/prisma/*.db

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import Link from "next/link";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Insight — Personality Assessment",
+  title: "Insight — Personality Development Platform",
   description:
-    "A modern, research-inspired 16-type personality assessment. Discover your type across four dimensions.",
+    "Discover your personality type, then grow with a personalized development center, roadmap, matches, and team compatibility insights.",
 };
 
 /**
@@ -35,22 +34,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen">
-        <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
-          <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-lg font-semibold tracking-tight"
-            >
-              <span className="inline-block h-6 w-6 rounded-md bg-brand-600" aria-hidden="true" />
-              Insight
-            </Link>
-            <ThemeToggle />
-          </div>
-        </header>
-        <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
-        <footer className="mx-auto max-w-3xl px-4 py-8 text-center text-xs text-slate-400">
-          For self-reflection and education. Not a clinical or diagnostic tool.
-        </footer>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

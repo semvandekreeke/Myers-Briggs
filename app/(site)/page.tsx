@@ -3,7 +3,7 @@ import { TOTAL_QUESTIONS } from "@/lib/questions";
 
 export default function HomePage() {
   return (
-    <div className="animate-fade-in space-y-10">
+    <div className="mx-auto max-w-3xl animate-fade-in space-y-10">
       <section className="space-y-5 pt-6 text-center">
         <span className="inline-block rounded-full bg-brand-100 px-3 py-1 text-sm font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
           {TOTAL_QUESTIONS} questions · about 8 minutes

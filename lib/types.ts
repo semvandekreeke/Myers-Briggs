@@ -68,3 +68,63 @@ export interface PersonalityType {
   teamContributions: string[];
   careerTendencies: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Rich report profiles — power the multi-section premium results report.
+// Each of the 16 types supplies one `TypeReport` (see lib/report-content.ts).
+// ---------------------------------------------------------------------------
+
+/** Personality Traits section content. */
+export interface PersonalityProfile {
+  /** A multi-sentence narrative overview of the type. */
+  overview: string;
+  /** How this type tends to make decisions. */
+  decisionMakingStyle: string;
+}
+
+/** Your Career Path section content. */
+export interface CareerProfile {
+  idealEnvironments: string[];
+  leadershipStyle: string;
+  motivators: string[];
+  careerStrengths: string[];
+  /** Careers that tend to fit well. */
+  recommendedCareers: string[];
+  /** Careers that may feel draining or misaligned. */
+  challengingCareers: string[];
+}
+
+/** Your Personal Growth section content. */
+export interface GrowthProfile {
+  developmentOpportunities: string[];
+  habitsToBuild: string[];
+  habitsToAvoid: string[];
+  emotionalGrowth: string;
+  communicationTips: string[];
+  stressManagement: string;
+  /** An ordered, actionable development roadmap. */
+  roadmap: string[];
+}
+
+/** Your Relationships section content. */
+export interface RelationshipProfile {
+  friendshipStyle: string;
+  romanticTendencies: string;
+  familyDynamics: string;
+  communicationPreferences: string;
+  conflictResolution: string;
+  strengths: string[];
+  growthOpportunities: string[];
+}
+
+/**
+ * The complete rich report for a single type. The hero/strengths/blind-spots
+ * etc. continue to come from `PersonalityType`; this adds the deeper,
+ * section-specific narrative content.
+ */
+export interface TypeReport {
+  personality: PersonalityProfile;
+  career: CareerProfile;
+  growth: GrowthProfile;
+  relationships: RelationshipProfile;
+}
